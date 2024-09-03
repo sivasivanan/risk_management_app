@@ -1,0 +1,2 @@
+sap.ui.define(["sap/fe/test/ObjectPage"],function(e){"use strict";var s={actions:{},assertions:{}};return new e({appId:"riskmanagementapp.rmrisks",componentId:"RM_RisksObjectPage",contextPath:"/RM_Risks"},s)});
+//# sourceMappingURL=RM_RisksObjectPage.js.map
