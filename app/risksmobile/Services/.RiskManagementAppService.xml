@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="RiskManagementAppService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <Annotation Term="Core.Links">
+                <Collection>
+                    <Record>
+                        <PropertyValue Property="rel" String="author"/>
+                        <PropertyValue Property="href" String="https://cap.cloud.sap"/>
+                    </Record>
+                </Collection>
+            </Annotation>
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="RM_Risks" EntityType="RiskManagementAppService.RM_Risks">
+                    <NavigationPropertyBinding Path="rm_miti" Target="RM_Mitigations"/>
+                    <NavigationPropertyBinding Path="supplier" Target="A_BusinessPartner"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="RM_Risks"/>
+                </EntitySet>
+                <EntitySet Name="RM_Mitigations" EntityType="RiskManagementAppService.RM_Mitigations">
+                    <NavigationPropertyBinding Path="rm_risks" Target="RM_Risks"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="RM_Mitigations"/>
+                </EntitySet>
+                <EntitySet Name="A_BusinessPartner" EntityType="RiskManagementAppService.A_BusinessPartner"/>
+            </EntityContainer>
+            <EntityType Name="RM_Risks">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="title" Type="Edm.String" MaxLength="100"/>
+                <Property Name="prio" Type="Edm.String" MaxLength="5"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="100"/>
+                <Property Name="impact" Type="Edm.Int32"/>
+                <Property Name="criticality" Type="Edm.Int32"/>
+                <NavigationProperty Name="rm_miti" Type="RiskManagementAppService.RM_Mitigations" Partner="rm_risks">
+                    <ReferentialConstraint Property="rm_miti_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="rm_miti_ID" Type="Edm.Guid"/>
+                <NavigationProperty Name="supplier" Type="RiskManagementAppService.A_BusinessPartner">
+                    <ReferentialConstraint Property="supplier_BusinessPartner" ReferencedProperty="BusinessPartner"/>
+                </NavigationProperty>
+                <Property Name="supplier_BusinessPartner" Type="Edm.String" MaxLength="10"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="RiskManagementAppService.DraftAdministrativeData" ContainsTarget="true"/>
+                <NavigationProperty Name="SiblingEntity" Type="RiskManagementAppService.RM_Risks"/>
+            </EntityType>
+            <EntityType Name="RM_Mitigations">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdAt" Type="Edm.String" MaxLength="100"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="100"/>
+                <Property Name="description" Type="Edm.String" MaxLength="100"/>
+                <Property Name="owner" Type="Edm.String" MaxLength="100"/>
+                <Property Name="timeline" Type="Edm.String" MaxLength="100"/>
+                <NavigationProperty Name="rm_risks" Type="Collection(RiskManagementAppService.RM_Risks)" Partner="rm_miti"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="RiskManagementAppService.DraftAdministrativeData" ContainsTarget="true"/>
+                <NavigationProperty Name="SiblingEntity" Type="RiskManagementAppService.RM_Mitigations"/>
+            </EntityType>
+            <EntityType Name="A_BusinessPartner">
+                <Key>
+                    <PropertyRef Name="BusinessPartner"/>
+                </Key>
+                <Property Name="BusinessPartner" Type="Edm.String" MaxLength="10" Nullable="false"/>
+                <Property Name="Customer" Type="Edm.String" MaxLength="10"/>
+                <Property Name="Supplier" Type="Edm.String" MaxLength="10"/>
+                <Property Name="BusinessPartnerCategory" Type="Edm.String" MaxLength="1"/>
+                <Property Name="BusinessPartnerFullName" Type="Edm.String" MaxLength="81"/>
+                <Property Name="BusinessPartnerIsBlocked" Type="Edm.Boolean"/>
+            </EntityType>
+            <EntityType Name="DraftAdministrativeData">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+            </EntityType>
+            <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="RiskManagementAppService.RM_Risks"/>
+                <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+                <ReturnType Type="RiskManagementAppService.RM_Risks"/>
+            </Action>
+            <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="RiskManagementAppService.RM_Mitigations"/>
+                <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+                <ReturnType Type="RiskManagementAppService.RM_Mitigations"/>
+            </Action>
+            <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="RiskManagementAppService.RM_Risks"/>
+                <ReturnType Type="RiskManagementAppService.RM_Risks"/>
+            </Action>
+            <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="RiskManagementAppService.RM_Mitigations"/>
+                <ReturnType Type="RiskManagementAppService.RM_Mitigations"/>
+            </Action>
+            <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="RiskManagementAppService.RM_Risks"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+                <ReturnType Type="RiskManagementAppService.RM_Risks"/>
+            </Action>
+            <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="RiskManagementAppService.RM_Mitigations"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+                <ReturnType Type="RiskManagementAppService.RM_Mitigations"/>
+            </Action>
+            <Annotations Target="RiskManagementAppService.EntityContainer/RM_Risks">
+                <Annotation Term="Common.DraftRoot">
+                    <Record Type="Common.DraftRootType">
+                        <PropertyValue Property="ActivationAction" String="RiskManagementAppService.draftActivate"/>
+                        <PropertyValue Property="EditAction" String="RiskManagementAppService.draftEdit"/>
+                        <PropertyValue Property="PreparationAction" String="RiskManagementAppService.draftPrepare"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Risks/ID">
+                <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Risks/IsActiveEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Risks/HasActiveEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Risks/HasDraftEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Risks/DraftAdministrativeData">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.EntityContainer/RM_Mitigations">
+                <Annotation Term="Common.DraftRoot">
+                    <Record Type="Common.DraftRootType">
+                        <PropertyValue Property="ActivationAction" String="RiskManagementAppService.draftActivate"/>
+                        <PropertyValue Property="EditAction" String="RiskManagementAppService.draftEdit"/>
+                        <PropertyValue Property="PreparationAction" String="RiskManagementAppService.draftPrepare"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Mitigations/ID">
+                <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Mitigations/IsActiveEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Mitigations/HasActiveEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Mitigations/HasDraftEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.RM_Mitigations/DraftAdministrativeData">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="RiskManagementAppService.DraftAdministrativeData">
+                <Annotation Term="Common.Label" String="{i18n>
+                    Draft_DraftAdministrativeData}"/>
+                </Annotations>
+                <Annotations Target="RiskManagementAppService.DraftAdministrativeData/DraftUUID">
+                    <Annotation Term="UI.Hidden" Bool="true"/>
+                    <Annotation Term="Common.Label" String="{i18n>
+                        Draft_DraftUUID}"/>
+                        <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
+                    </Annotations>
+                    <Annotations Target="RiskManagementAppService.DraftAdministrativeData/CreationDateTime">
+                        <Annotation Term="Common.Label" String="{i18n>
+                            Draft_CreationDateTime}"/>
+                        </Annotations>
+                        <Annotations Target="RiskManagementAppService.DraftAdministrativeData/CreatedByUser">
+                            <Annotation Term="Common.Label" String="{i18n>
+                                Draft_CreatedByUser}"/>
+                            </Annotations>
+                            <Annotations Target="RiskManagementAppService.DraftAdministrativeData/DraftIsCreatedByMe">
+                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                <Annotation Term="Common.Label" String="{i18n>
+                                    Draft_DraftIsCreatedByMe}"/>
+                                </Annotations>
+                                <Annotations Target="RiskManagementAppService.DraftAdministrativeData/LastChangeDateTime">
+                                    <Annotation Term="Common.Label" String="{i18n>
+                                        Draft_LastChangeDateTime}"/>
+                                    </Annotations>
+                                    <Annotations Target="RiskManagementAppService.DraftAdministrativeData/LastChangedByUser">
+                                        <Annotation Term="Common.Label" String="{i18n>
+                                            Draft_LastChangedByUser}"/>
+                                        </Annotations>
+                                        <Annotations Target="RiskManagementAppService.DraftAdministrativeData/InProcessByUser">
+                                            <Annotation Term="Common.Label" String="{i18n>
+                                                Draft_InProcessByUser}"/>
+                                            </Annotations>
+                                            <Annotations Target="RiskManagementAppService.DraftAdministrativeData/DraftIsProcessedByMe">
+                                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                                <Annotation Term="Common.Label" String="{i18n>
+                                                    Draft_DraftIsProcessedByMe}"/>
+                                                </Annotations>
+                                            </Schema>
+                                        </edmx:DataServices>
+                                    </edmx:Edmx>
